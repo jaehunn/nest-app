@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    ports:
+      - 5432:5432
+
+    # docker image 에서 생성된 데이터 host 에 매핑 (데이터 유지)
+    # {host}:{image-data}
+    # host 에서 변경하면 image 에서도 변경되고
+    # image 에서 변경하면 host 에서도 변경된다.
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=0000
+      - POSTGRES_DB=postgresdb
+# 컨테이너 갯수가 많아지면 어떻게 관리하지?
+# kubernetes, docker swarm, docker compose
+
+# 70~80% 정도의 점유율 kubernetes 가 차지한다.
+
+# docker compose 역할은 좀 다름.
+# 여러 기기에서 작동을 한다라는 가정을 하지않았음. kube 는 그런 가정을 함.
+
+# 여러 기기에서 여러 컨테이너에서 > kube (prod)
+# 하나의 기기에서 여러 컨테이너 > docker compose (dev)
+
+# docker compose 는 yml 로 작성한다.
