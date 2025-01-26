@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostsModule } from './posts/posts.module';
+import { PostsModel } from './posts/entities/posts.entity';
 
 @Module({
   // imports 는 다른 모듈을 가져온다.
@@ -19,7 +20,7 @@ import { PostsModule } from './posts/posts.module';
       database: 'postgresdb',
 
       // 연동할 모델을 설정할 것.
-      entities: [],
+      entities: [PostsModel],
 
       // nestjs typeorm 코드와 db 싱크를 맞출거냐.
       // prod 에서는 false 하는 게 좋다. (자동싱크 해제)
