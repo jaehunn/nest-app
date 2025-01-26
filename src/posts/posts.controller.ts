@@ -3,71 +3,29 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
-
-interface Post {
-  id: number;
-  author: string;
-  title: string;
-  content: string;
-  likeCount: number;
-  commentCount: number;
-}
-
-let posts: Post[] = [
-  {
-    id: 1,
-    author: 'John Doe',
-    title: 'Hello World',
-    content: 'This is a test post',
-    likeCount: 10,
-    commentCount: 5,
-  },
-  {
-    id: 2,
-    author: 'Jane Doe',
-    title: 'Hello World 2',
-    content: 'This is a test post 2',
-    likeCount: 10,
-    commentCount: 5,
-  },
-  {
-    id: 3,
-    author: 'John Doe',
-    title: 'Hello World 3',
-    content: 'This is a test post 3',
-    likeCount: 10,
-    commentCount: 5,
-  },
-];
+import { PostType, PostsService } from './posts.service';
 
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) {}
+  // private readonly 는 postService 를 선언하고,
+  // this.postService 에 postsService 생성 인자를 할당하는 것을 의미한다.
+
+  constructor(private readonly postsService: PostsService) {
+    // controller 는 service 를 의존성으로 무조건 가진다.
+  }
 
   @Get()
-  getPosts(): Post[] {
-    return posts;
+  getPosts(): PostType[] {
+    return this.postsService.getPosts();
   }
 
   @Get(':id')
-  getPost(@Param('id') id: string): Post {
-    // path parameter is always string
-    // id: number 로는 찾아지지 않는다.
-
-    const post = posts.find((post) => post.id === Number(id));
-
-    // 찾을 수 없으면 찾을 수 없다고 알려줘야한다.
-    if (!post) {
-      throw new NotFoundException('message 응답필드를 설정해줄 수 있습니다.');
-    }
-
-    return post;
+  getPost(@Param('id') id: string): PostType {
+    return this.postsService.getPost(id);
   }
 
   @Post()
@@ -75,63 +33,18 @@ export class PostsController {
     @Body('author') author: string,
     @Body('title') title: string,
     @Body('content') content: string,
-  ): Post {
-    // 생성 시 기본값이 설정되는 값이 아니면 받아야한다.
-
-    const defaultPost: Post = {
-      id: posts[posts.length - 1].id + 1,
-      author: '',
-      title: '',
-      content: '',
-      likeCount: 0,
-      commentCount: 0,
-    };
-
-    const post: Post = {
-      ...defaultPost,
-      author,
-      title,
-      content,
-    };
-
-    posts = [...posts, post];
-
-    // 데이터를 얼마나 응답했느냐로 과금함.
-    // 최소한의 정보를 반환해주는 것이 과금 절약에 좋다.
-    return post;
+  ): PostType {
+    return this.postsService.createPost(author, title, content);
   }
 
   @Patch(':id')
   updatePost(
-    @Param('id') id: number,
-
+    @Param('id') id: string,
     @Body('author') author: string,
     @Body('title') title: string,
     @Body('content') content: string,
-  ): Post {
-    // body 값이 전부 필수값은 아니어도 된다.
-
-    const post = posts.find((post) => post.id === Number(id));
-
-    if (!post) {
-      throw new NotFoundException('message 응답필드를 설정해줄 수 있습니다.');
-    }
-
-    if (author) {
-      post.author = author;
-    }
-
-    if (title) {
-      post.title = title;
-    }
-
-    if (content) {
-      post.content = content;
-    }
-
-    posts = posts.map((prev) => (post.id === Number(id) ? post : prev));
-
-    return post;
+  ): PostType {
+    return this.postsService.updatePost(id, author, title, content);
   }
 
   // @Put(':id')
@@ -142,14 +55,6 @@ export class PostsController {
 
   @Delete(':id')
   deletePost(@Param('id') id: string): string {
-    const post = posts.find((post) => post.id === Number(id));
-
-    if (!post) {
-      throw new NotFoundException('message 응답필드를 설정해줄 수 있습니다.');
-    }
-
-    posts = posts.filter((post) => post.id !== Number(id));
-
-    return id;
+    return this.postsService.deletePost(id);
   }
 }
