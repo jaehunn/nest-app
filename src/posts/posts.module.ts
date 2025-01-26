@@ -19,7 +19,13 @@ import { PostsController } from './posts.controller';
 // IoC Container 가 찾아서 알아서 인스턴스화 하고 주입해줌. -> Nestjs 역할.
 
 @Module({
+  // PostsController() 인스턴스를 넣는게 아님. 클래스로 넣고 IoC 가 알아서 인스턴스화를 한다.
   controllers: [PostsController],
+
+  // PostsController 의 DI 인스턴스로 PostsService 를 정의했다.
+  // 주입을 시켜야하는 클래스가 있으면 providers 에 설정한다.
   providers: [PostsService],
+
+  // providers 에 등록된 클래스들은 IoC 컨테이너에 등록되고 관리된다.
 })
 export class PostsModule {}
