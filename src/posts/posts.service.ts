@@ -9,6 +9,24 @@ export interface PostType {
   commentCount: number;
 }
 
+// 왜 데이터가 초기화되는가 > RAM
+
+// Nestjs 코드는 HDD/SSD, 휘발이 안된다.
+// 실행 시점부터 Nestjs 코드가 RAM 에 올라온다. (실행되는 것만)
+// RAM 은 리셋된다. (휘발)
+
+// 왜 써요? 빨라서
+// 왜 빨라요? 메모리 접근 속도가 빠르다.
+
+// 영구적으로 데이터를 저장해줘야함. 안지워지려면
+// 명령할 수 있는 방법이 여러가지가 있지만 SQL
+// Structured Query Language
+
+// C: INSERT INTO {table} [{column}] VALUES [{value}]
+// R: SELECT {column} FROM {table}
+// U: UPDATE {table} SET {column} WHERE {condition}
+// D: DELETE FROM {table} WHERE {condition}
+
 export let posts: PostType[] = [
   {
     id: 1,
