@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostsModule } from './posts/posts.module';
@@ -6,7 +8,24 @@ import { PostsModule } from './posts/posts.module';
 @Module({
   // imports 는 다른 모듈을 가져온다.
   // cli 를 사용하면 자동으로 설정됨.
-  imports: [PostsModule],
+  imports: [
+    PostsModule,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: '0000',
+      database: 'postgresdb',
+
+      // 연동할 모델을 설정할 것.
+      entities: [],
+
+      // nestjs typeorm 코드와 db 싱크를 맞출거냐.
+      // prod 에서는 false 하는 게 좋다. (자동싱크 해제)
+      synchronize: true,
+    }),
+  ],
 
   controllers: [AppController],
   providers: [AppService],
