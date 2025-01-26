@@ -19,32 +19,37 @@ export class PostsController {
   }
 
   @Get()
-  getPosts(): PostType[] {
-    return this.postsService.getPosts();
+  async getPosts(): Promise<PostType[]> {
+    return await this.postsService.getPosts();
   }
 
   @Get(':id')
-  getPost(@Param('id') id: string): PostType {
-    return this.postsService.getPost(id);
+  async getPost(@Param('id') id: string): Promise<PostType> {
+    return await this.postsService.getPostById(Number(id));
   }
 
   @Post()
-  createPost(
+  async createPost(
     @Body('author') author: string,
     @Body('title') title: string,
     @Body('content') content: string,
-  ): PostType {
-    return this.postsService.createPost(author, title, content);
+  ): Promise<PostType> {
+    return await this.postsService.createPost(author, title, content);
   }
 
   @Patch(':id')
-  updatePost(
+  async updatePost(
     @Param('id') id: string,
     @Body('author') author: string,
     @Body('title') title: string,
     @Body('content') content: string,
-  ): PostType {
-    return this.postsService.updatePost(id, author, title, content);
+  ): Promise<PostType> {
+    return await this.postsService.updatePost(
+      Number(id),
+      author,
+      title,
+      content,
+    );
   }
 
   // @Put(':id')
@@ -54,7 +59,7 @@ export class PostsController {
   // }
 
   @Delete(':id')
-  deletePost(@Param('id') id: string): string {
-    return this.postsService.deletePost(id);
+  async deletePost(@Param('id') id: string): Promise<string> {
+    return await this.postsService.deletePost(Number(id));
   }
 }

@@ -1,4 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { PostsModel } from './entities/posts.entity';
 
 export interface PostType {
   id: number;
@@ -27,35 +31,17 @@ export interface PostType {
 // U: UPDATE {table} SET {column} WHERE {condition}
 // D: DELETE FROM {table} WHERE {condition}
 
-export let posts: PostType[] = [
-  {
-    id: 1,
-    author: 'John Doe',
-    title: 'Hello World',
-    content: 'This is a test post',
-    likeCount: 10,
-    commentCount: 5,
-  },
-  {
-    id: 2,
-    author: 'Jane Doe',
-    title: 'Hello World 2',
-    content: 'This is a test post 2',
-    likeCount: 10,
-    commentCount: 5,
-  },
-  {
-    id: 3,
-    author: 'John Doe',
-    title: 'Hello World 3',
-    content: 'This is a test post 3',
-    likeCount: 10,
-    commentCount: 5,
-  },
-];
-
 @Injectable()
 export class PostsService {
+  constructor(
+    // typeorm 으로부터 주입되는 레퍼지토리다를 알려주기 위해.
+    // 태그를 해줘야함. (@InjectRepository)
+    @InjectRepository(PostsModel)
+    private readonly postsRepository: Repository<PostsModel>,
+  ) {
+    // ...
+  }
+
   // Architecture, 효율적인 코드 관리 방식
   // controller 는 로직을 처리하지않는다. service 에서 로직을 처리한다.
   // controller 는 service 로직을 호출하기만 한다.
@@ -65,50 +51,60 @@ export class PostsService {
   // 2. 다른 모듈에서 재사용할 수 있다.
   // 3. 어떤 상황에서든 받아서 로직을 처리한다. path param 이든 body 든 상관없어진다.
 
-  getPosts(): PostType[] {
-    return posts;
+  // repository 의 함수는 전부 async 임.
+  async getPosts(): Promise<PostType[]> {
+    return await this.postsRepository.find(); // []
   }
 
-  getPost(id: string): PostType {
-    const post = posts.find((post) => post.id === Number(id));
+  async getPostById(id: number): Promise<PostType> {
+    const post = await this.postsRepository.findOne({
+      where: { id },
+    });
 
     if (!post) {
-      throw new NotFoundException('');
+      throw new NotFoundException('message 응답필드를 설정해줄 수 있습니다.');
     }
 
     return post;
   }
 
-  createPost(author: string, title: string, content: string): PostType {
-    const defaultPost: PostType = {
-      id: posts[posts.length - 1].id + 1,
-      author: '',
-      title: '',
-      content: '',
-      likeCount: 0,
-      commentCount: 0,
-    };
-
-    const post: PostType = {
-      ...defaultPost,
-      author,
-      title,
-      content,
-    };
-
-    posts = [...posts, post];
-
-    return post;
-  }
-
-  updatePost(
-    id: string,
+  async createPost(
     author: string,
     title: string,
     content: string,
-  ): PostType {
-    const post = posts.find((post) => post.id === Number(id));
+  ): Promise<PostType> {
+    // 1. create (sync, 객체만 생성함.)
+    const post = this.postsRepository.create({
+      author,
+      title,
+      content,
+      likeCount: 0,
+      commentCount: 0,
+    });
 
+    // 2. save
+    const newPost = await this.postsRepository.save(post);
+
+    return newPost;
+  }
+
+  async updatePost(
+    id: number,
+    author: string,
+    title: string,
+    content: string,
+  ): Promise<PostType> {
+    // save
+    // 1. 데이터가 없으면 생성함.
+    // 2. 데이터가 있으면 변경한다.
+
+    // 알아서 처리하지 않도록 하자.
+
+    const post = await this.postsRepository.findOne({
+      where: { id },
+    });
+
+    // 존재하지 않으면 변경하지 못함.
     if (!post) {
       throw new NotFoundException('message 응답필드를 설정해줄 수 있습니다.');
     }
@@ -125,20 +121,23 @@ export class PostsService {
       post.content = content;
     }
 
-    posts = posts.map((prev) => (post.id === Number(id) ? post : prev));
+    // 변경하는 케이스만 해당한다.
+    const newPost = await this.postsRepository.save(post);
 
-    return post;
+    return newPost;
   }
 
-  deletePost(id: string): string {
-    const post = posts.find((post) => post.id === Number(id));
+  async deletePost(id: number): Promise<string> {
+    const post = await this.postsRepository.findOne({
+      where: { id },
+    });
 
     if (!post) {
       throw new NotFoundException('message 응답필드를 설정해줄 수 있습니다.');
     }
 
-    posts = posts.filter((post) => post.id !== Number(id));
+    await this.postsRepository.delete(id);
 
-    return id;
+    return String(id);
   }
 }
