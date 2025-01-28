@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   Param,
@@ -37,6 +38,11 @@ export class PostsController {
     @Body('author') author: string,
     @Body('title') title: string,
     @Body('content') content: string,
+    // default pipe
+    // 왜 인스턴스화를 했는가.
+    // api route 실행마다 계속 새로 생김.
+    // 클래스면 IoC Container 에서 자동 생성 > nest 가 해주느냐에 대한 여부만 다름.
+    @Body('isPublic', new DefaultValuePipe(true)) isPublic: boolean,
   ): Promise<PostType> {
     return await this.postsService.createPost(author, title, content);
   }

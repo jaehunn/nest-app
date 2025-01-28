@@ -1,6 +1,7 @@
 import { Body, Controller, Headers, Post } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
+import { MaxLengthPipe, MinLengthPipe } from './pipe/password.pipe';
 
 // access token -> expired -> rotate token -> return access token
 // refresh token -> expired -> rotate token -> return refresh token
@@ -63,9 +64,15 @@ export class AuthController {
   @Post('register')
   async register(
     @Body('email') email: string,
-    @Body('password') password: string,
+    // length 검증하려면? custom pipe
+    // 파이프 연쇄.
+    // 인스턴스로 생성하면 멤버를 커스텀하게 설정 가능.
+    @Body('password', new MaxLengthPipe(8), new MinLengthPipe(3))
+    password: string,
     @Body('nickname') nickname: string,
   ) {
+    // pipe 로 유효성 검증
+
     return this.authService.registerWithEmail({
       email,
       password,
