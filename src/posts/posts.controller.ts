@@ -1,15 +1,17 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { PostType, PostsService } from './posts.service';
+import { AccessTokenGuard } from 'src/auth/guard/bearer-auth.guard';
+import { User } from 'src/users/decorator/user.decorator';
 
 @Controller('posts')
 export class PostsController {
@@ -33,18 +35,29 @@ export class PostsController {
     return await this.postsService.getPostById(id);
   }
 
+  // private route 적용해야함.
+  // access token 검증이 성공한 경우를 전제해야함.
   @Post()
+  @UseGuards(AccessTokenGuard)
   async createPost(
-    @Body('author') author: string,
+    // guard 에서 담은 요청 객체 접근
+    // @Request() req: any,
+    // @User 는 AccessTokenGuard 에 의존함.
+    @User('id') userId: UserType,
+
+    // @Body('author') author: string,
     @Body('title') title: string,
     @Body('content') content: string,
     // default pipe
     // 왜 인스턴스화를 했는가.
     // api route 실행마다 계속 새로 생김.
     // 클래스면 IoC Container 에서 자동 생성 > nest 가 해주느냐에 대한 여부만 다름.
-    @Body('isPublic', new DefaultValuePipe(true)) isPublic: boolean,
+    // @Body('isPublic', new DefaultValuePipe(true)) isPublic: boolean,
   ): Promise<PostType> {
-    return await this.postsService.createPost(author, title, content);
+    // author 를 따로 받지 않아도 된다.
+    // 토큰 정보에 포함됨.
+
+    return await this.postsService.createPost(userId, title, content);
   }
 
   @Patch(':id')
