@@ -1,3 +1,4 @@
+import { IsString } from 'class-validator';
 import { BaseEntity, Column, Entity } from 'typeorm';
 
 // PostsModel 이라는 table 을 생성함.
@@ -15,9 +16,16 @@ export class PostsModel extends BaseEntity {
   author: string;
 
   @Column()
+  @IsString({
+    // 메시지 커스텀
+    message: 'title 은 문자열이어야 합니다.',
+  })
   title: string;
 
   @Column()
+  @IsString({
+    message: 'content 은 문자열이어야 합니다.',
+  })
   content: string;
 
   @Column()

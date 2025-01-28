@@ -1,4 +1,7 @@
-import { IsString } from 'class-validator';
+import { PickType } from '@nestjs/mapped-types';
+import { PostsModel } from '../entities/posts.entity';
+
+// body 각각을 class 로 관리해보자.
 
 // data transfer object
 // body 로 받으면 서버에서 효율적으로 관리하는 객체
@@ -7,10 +10,11 @@ import { IsString } from 'class-validator';
 
 // pipe 로 검증도 가능하지만 dto 로 할 수 있음.
 
-export class CreatePostDto {
-  @IsString()
-  title: string;
+// Pick, Omit, Partial, Intersection
+// PickType, OmitType, PartialType, IntersectionType
 
-  @IsString()
-  content: string;
+export class CreatePostDto extends PickType(PostsModel, ['title', 'content']) {
+  // ...
 }
+
+/** @see https://github.com/typestack/class-validator */
