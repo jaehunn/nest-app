@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -23,9 +24,12 @@ export class PostsController {
     return await this.postsService.getPosts();
   }
 
+  // url queryparam 이 numstring 으로 검증하고 싶다 -> ParseIntPipe 사용 (pipe)
+  // ParseIntPipe 검증했으면 id: number 로 잡아도 됨. 변환도 되니까.
+  // 만약 검증 싪패 시 500 이 아닌 BadRequestException 발생 (400)
   @Get(':id')
-  async getPost(@Param('id') id: string): Promise<PostType> {
-    return await this.postsService.getPostById(Number(id));
+  async getPost(@Param('id', ParseIntPipe) id: number): Promise<PostType> {
+    return await this.postsService.getPostById(id);
   }
 
   @Post()
@@ -39,7 +43,7 @@ export class PostsController {
 
   @Patch(':id')
   async updatePost(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body('author') author: string,
     @Body('title') title: string,
     @Body('content') content: string,
@@ -59,7 +63,7 @@ export class PostsController {
   // }
 
   @Delete(':id')
-  async deletePost(@Param('id') id: string): Promise<string> {
-    return await this.postsService.deletePost(Number(id));
+  async deletePost(@Param('id', ParseIntPipe) id: number): Promise<string> {
+    return await this.postsService.deletePost(id);
   }
 }
