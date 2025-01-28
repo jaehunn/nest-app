@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PostsModule } from './posts/posts.module';
 import { PostsModel } from './posts/entities/posts.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   // imports 는 다른 모듈을 가져온다.
@@ -26,6 +27,7 @@ import { PostsModel } from './posts/entities/posts.entity';
       // prod 에서는 false 하는 게 좋다. (자동싱크 해제)
       synchronize: true,
     }),
+    AuthModule,
   ],
 
   controllers: [AppController],
