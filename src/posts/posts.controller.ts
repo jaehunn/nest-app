@@ -46,6 +46,9 @@ export class PostsController {
     @User('id') userId: UserType,
 
     // @Body('author') author: string,
+
+    // @Body('title') 처럼 리터럴을 쓰면 휴먼 에러 가능성이 있음.
+    // class-validator 를 써보자.
     @Body('title') title: string,
     @Body('content') content: string,
     // default pipe
