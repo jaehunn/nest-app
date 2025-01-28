@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { PostsModel } from './entities/posts.entity';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 export interface PostType {
   id: number;
@@ -85,12 +86,9 @@ export class PostsService {
     return newPost;
   }
 
-  async updatePost(
-    id: number,
-    author: string,
-    title: string,
-    content: string,
-  ): Promise<PostType> {
+  async updatePost(id: number, body: UpdatePostDto): Promise<PostType> {
+    const { author, title, content } = body;
+
     // save
     // 1. 데이터가 없으면 생성함.
     // 2. 데이터가 있으면 변경한다.

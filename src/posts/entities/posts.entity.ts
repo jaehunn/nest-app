@@ -1,5 +1,8 @@
-import { IsString } from 'class-validator';
-import { BaseEntity, Column, Entity } from 'typeorm';
+import { IsString, Length } from 'class-validator';
+import { BaseEntity } from '../../common/entity/base.entity';
+import { Column, Entity } from 'typeorm';
+import { lenghtValidationMessage } from 'src/common/validation-message/lenght-validation.message';
+import { stringValidationMessage } from 'src/common/validation-message/string-validation.message';
 
 // PostsModel 이라는 table 을 생성함.
 @Entity()
@@ -20,11 +23,16 @@ export class PostsModel extends BaseEntity {
     // 메시지 커스텀
     message: 'title 은 문자열이어야 합니다.',
   })
+  @Length(1, 20, {
+    // message: 'title 은 1자 이상 20자 이하여야 합니다.',
+    // 공통화
+    message: lenghtValidationMessage,
+  })
   title: string;
 
   @Column()
   @IsString({
-    message: 'content 은 문자열이어야 합니다.',
+    message: stringValidationMessage,
   })
   content: string;
 

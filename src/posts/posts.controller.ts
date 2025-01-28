@@ -13,6 +13,7 @@ import { PostType, PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-auth.guard';
 import { User } from 'src/users/decorator/user.decorator';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -64,19 +65,15 @@ export class PostsController {
     return await this.postsService.createPost(userId, body.title, body.content);
   }
 
+  // Put 은 없으면 생성, 있으면 업데이트
+  // Patch 로 업데이트 명시
   @Patch(':id')
   async updatePost(
     @Param('id', ParseIntPipe) id: number,
-    @Body('author') author: string,
-    @Body('title') title: string,
-    @Body('content') content: string,
+
+    @Body() body: UpdatePostDto,
   ): Promise<PostType> {
-    return await this.postsService.updatePost(
-      Number(id),
-      author,
-      title,
-      content,
-    );
+    return await this.postsService.updatePost(Number(id), body);
   }
 
   // @Put(':id')
