@@ -1,7 +1,16 @@
-import { Body, Controller, Headers, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { MaxLengthPipe, MinLengthPipe } from './pipe/password.pipe';
+import { BasicAuthGuard } from './guard/basic-auth.guard';
+import { AccessTokenGuard, RefreshTokenGuard } from './guard/bearer-auth.guard';
 
 // access token -> expired -> rotate token -> return access token
 // refresh token -> expired -> rotate token -> return refresh token
@@ -10,8 +19,17 @@ import { MaxLengthPipe, MinLengthPipe } from './pipe/password.pipe';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  // header 에 토큰이 들어온다는 가정을 하고 있음.
+  // pipe 훨씬 전에 guard 가 검증을 수행할 수 있음.
   @Post('login/email')
-  async loginEmail(@Headers('authorization') rawToken: string) {
+  @UseGuards(BasicAuthGuard)
+  async loginEmail(
+    @Headers('authorization') rawToken: string,
+    @Request() req: Request,
+  ) {
+    // TODO: 추론되도록 어떻게 할까.
+    // console.log(req?.user);
+
     // 1. token extract
     const token = await this.authService.extractTokenFromHeader(
       rawToken,
@@ -26,6 +44,7 @@ export class AuthController {
   }
 
   @Post('token/access')
+  @UseGuards(AccessTokenGuard)
   async tokenAccess(@Headers('authorization') rawToken: string) {
     // 1. token extract (bearer)
     const token = await this.authService.extractTokenFromHeader(rawToken, true);
@@ -38,6 +57,7 @@ export class AuthController {
     };
   }
   @Post('token/refresh')
+  @UseGuards(RefreshTokenGuard)
   async tokenRefresh(@Headers('authorization') rawToken: string) {
     // 1. token extract (bearer)
     const token = await this.authService.extractTokenFromHeader(rawToken, true);
