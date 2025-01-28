@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { PostsModel } from './entities/posts.entity';
+import { CreatePostDto } from './dto/create-post.dto';
 
 export interface PostType {
   id: number;
@@ -68,16 +69,12 @@ export class PostsService {
     return post;
   }
 
-  async createPost(
-    author: string,
-    title: string,
-    content: string,
-  ): Promise<PostType> {
+  async createPost(author: string, body: CreatePostDto): Promise<PostType> {
     // 1. create (sync, 객체만 생성함.)
     const post = this.postsRepository.create({
       author,
-      title,
-      content,
+      title: body.title,
+      content: body.content,
       likeCount: 0,
       commentCount: 0,
     });

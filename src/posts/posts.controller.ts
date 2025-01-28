@@ -12,6 +12,7 @@ import {
 import { PostType, PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-auth.guard';
 import { User } from 'src/users/decorator/user.decorator';
+import { CreatePostDto } from './dto/create-post.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -49,8 +50,8 @@ export class PostsController {
 
     // @Body('title') 처럼 리터럴을 쓰면 휴먼 에러 가능성이 있음.
     // class-validator 를 써보자.
-    @Body('title') title: string,
-    @Body('content') content: string,
+    @Body() body: CreatePostDto,
+
     // default pipe
     // 왜 인스턴스화를 했는가.
     // api route 실행마다 계속 새로 생김.
@@ -60,7 +61,7 @@ export class PostsController {
     // author 를 따로 받지 않아도 된다.
     // 토큰 정보에 포함됨.
 
-    return await this.postsService.createPost(userId, title, content);
+    return await this.postsService.createPost(userId, body.title, body.content);
   }
 
   @Patch(':id')
