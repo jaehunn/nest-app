@@ -1,6 +1,8 @@
 import { IsString, Length } from 'class-validator';
-import { BaseEntity } from '../../common/entity/base.entity';
+import { Exclude, Expose } from 'class-transformer';
 import { Column, Entity } from 'typeorm';
+
+import { BaseEntity } from '../../common/entity/base.entity';
 import { lenghtValidationMessage } from 'src/common/validation-message/lenght-validation.message';
 import { stringValidationMessage } from 'src/common/validation-message/string-validation.message';
 
@@ -40,7 +42,22 @@ export class PostsModel extends BaseEntity {
   likeCount: number;
 
   @Column()
+  // 데이터 노출 제외
+  // (요청) fe -> be, plain object (json) -> class instance (dto)
+  // (응답) be -> fe, class instance (dto) -> plain object (json)
+
+  // toClassOnly: class instance object 될때만 (요청에 대해서만 적용된다.)
+  // toPlainOnly: plain object 될때만 (응답에 대해서만 적용된다.)
+
+  // 요청 시 비밀번호는 받아야되니까 toClassOnly 적용 안함.
+  // 응답 시 비밀번호는 안보여야되니까 toPlainOnly 적용
+  @Exclude({
+    toClassOnly: false,
+    toPlainOnly: true,
+  })
+  // hidden field
   commentCount: number;
+  // 엔티티 클래스 자체에 exclude 적용 가능함.
 
   // 데이터가 언제 생성되었는지. 언제 업데이트 되었는지 자동 생성시키고 싶다.
   // utc time (base time)
@@ -50,4 +67,12 @@ export class PostsModel extends BaseEntity {
 
   // @UpdateDateColumn()
   // updatedAt: Date;
+
+  // 노출 시키고 싶다. @Expose
+  // virtual field
+  @Expose()
+  nickname: string;
+  get nicknameAndEmail() {
+    return this.nickname + '/';
+  }
 }

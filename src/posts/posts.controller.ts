@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -8,6 +9,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PostType, PostsService } from './posts.service';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-auth.guard';
@@ -25,6 +27,17 @@ export class PostsController {
   }
 
   @Get()
+  // interceptor 등록
+
+  // ClassSerializerInterceptor:
+  // serialize: nestjs 데이터 구조를 다른 시스템에서 쓰도록 포맷으로 변환
+  // class object -> json format (json 으로 변환될때 ClassSerializerInterceptor 로 클래스를 직렬화한다.)
+  // @Exclude 적용됨.
+
+  // deserialize: json format -> class object
+
+  // 이걸 까먹을 수 있으니까 app providers 에 등록해놓자.
+  // @UseInterceptors(ClassSerializerInterceptor)
   async getPosts(): Promise<PostType[]> {
     return await this.postsService.getPosts();
   }
